@@ -128,6 +128,7 @@ public class QuadInfo {
 				ByteBuffer data) {
 			int elementCount = formatElement.getElementCount();
 			float[] floats = new float[elementCount];
+			float normalization = 1;
 			switch (formatElement.getType()) {
 				case FLOAT:
 					data.asFloatBuffer().get(floats);
@@ -138,6 +139,7 @@ public class QuadInfo {
 					for (int i = 0; i < elementCount; i++) {
 						floats[i] = ints[i];
 					}
+					normalization = Integer.MAX_VALUE;
 					break;
 				case BYTE:
 					byte[] bytes = new byte[elementCount];
@@ -145,6 +147,7 @@ public class QuadInfo {
 					for (int i = 0; i < elementCount; i++) {
 						floats[i] = bytes[i];
 					}
+					normalization = Byte.MAX_VALUE;
 					break;
 				case SHORT:
 					short[] shorts = new short[elementCount];
@@ -152,6 +155,7 @@ public class QuadInfo {
 					for (int i = 0; i < elementCount; i++) {
 						floats[i] = shorts[i];
 					}
+					normalization = Short.MAX_VALUE;
 					break;
 				case UBYTE:
 					byte[] sbytes = new byte[elementCount];
@@ -160,6 +164,7 @@ public class QuadInfo {
 						// copied from Byte.toUnsignedInt (since Java 1.8)
 						floats[i] = ((int) sbytes[i]) & 0xFF;
 					}
+					normalization = 0xFF;
 					break;
 				case USHORT:
 					short[] sshorts = new short[elementCount];
@@ -168,6 +173,7 @@ public class QuadInfo {
 						// copied from Short.toUnsignedInt (since Java 1.8)
 						floats[i] = ((int) sshorts[i]) & 0xFFFF;
 					}
+					normalization = 0xFFFF;
 					break;
 				case UINT:
 					int[] sints = new int[elementCount];
@@ -176,8 +182,14 @@ public class QuadInfo {
 						// copied from Integer.toUnsignedLong (since Java 1.8)
 						floats[i] = ((long) sints[i]) & 0xFFFFFFFFL;
 					}
+					normalization = 0xFFFFFFFFL;
 				default:
 					throw new RuntimeException("Unsupported type: " + formatElement.getType());
+			}
+			if (normalization != 1) {
+				for (int i = 0; i < elementCount; i++) {
+					floats[i] = floats[i] / normalization;
+				}
 			}
 			return floats;
 		}

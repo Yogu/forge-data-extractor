@@ -70,14 +70,19 @@ public class QuadInfo {
 		}
 
 		private float[] extractElementForAllVertices(VertexFormatElement.EnumUsage usage,
-				int expectedElementCount) {
-			int index = this.findElement(quad.getFormat(), usage);
+				int expectedElementCount, int elementIndex) {
+			int index = this.findElement(quad.getFormat(), usage, elementIndex);
 			if (index < 0) {
 				return null;
 			}
 			VertexFormatElement element = quad.getFormat().getElement(index);
 			assertElementCount(element, expectedElementCount);
 			return extractElementForAllVertices(index);
+		}
+
+		private float[] extractElementForAllVertices(VertexFormatElement.EnumUsage usage,
+				int expectedElementCount) {
+			return extractElementForAllVertices(usage, expectedElementCount, 0);
 		}
 
 		private void assertElementCount(VertexFormatElement element, int count) {
@@ -178,10 +183,10 @@ public class QuadInfo {
 		}
 
 		private int findElement(VertexFormat format,
-				VertexFormatElement.EnumUsage usage) {
+				VertexFormatElement.EnumUsage usage, int elementIndex) {
 			int i = 0;
 			for (VertexFormatElement element : format.getElements()) {
-				if (element.getUsage() == usage) {
+				if (element.getUsage() == usage && element.getIndex() == elementIndex) {
 					return i;
 				}
 				i++;

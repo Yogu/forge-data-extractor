@@ -2,6 +2,7 @@ package com.example.examplemod;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -14,7 +15,7 @@ import java.util.Map;
 /**
  * Static information about a {@link IBlockState}
  */
-public class BlockStateInfo {
+public class BlockStateInfo implements  Cloneable {
 	private static final Logger LOGGER = LogManager.getLogger();
 
 	private String qualifiedName;
@@ -30,9 +31,11 @@ public class BlockStateInfo {
 	private boolean isTranslucent;
 	private Map<EnumFacing, Boolean> isSideSolid = new HashMap<EnumFacing, Boolean>();
 	private AxisAlignedBB collisionBoundingBox;
-	private ModelInfo model;
 
-	public static BlockStateInfo fromBlockState(IBlockState blockState, IBakedModel model) {
+	private ModelInfo model;
+	private ModelResourceLocation modelResourceLocation;
+
+	public static BlockStateInfo fromBlockState(IBlockState blockState) {
 		BlockStateInfo info = new BlockStateInfo();
 		info.qualifiedName = blockState.toString();
 		info.renderType = blockState.getRenderType();
@@ -64,8 +67,26 @@ public class BlockStateInfo {
 			info.collisionBoundingBox = null;
 		}
 
-		info.model = ModelInfo.forBakedModel(model, blockState);
-
 		return info;
+	}
+
+	public BlockStateInfo clone() {
+		try {
+			return (BlockStateInfo) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public BlockStateInfo withModel(ModelInfo model) {
+		BlockStateInfo clone = this.clone();
+		clone.model = model;
+		return clone;
+	}
+
+	public BlockStateInfo withModelResourceLocation(ModelResourceLocation modelResourceLocation) {
+		BlockStateInfo clone = this.clone();
+		clone.modelResourceLocation = modelResourceLocation;
+		return clone;
 	}
 }

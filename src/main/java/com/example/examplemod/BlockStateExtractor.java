@@ -7,6 +7,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelManager;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.util.ObjectIntIdentityMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -39,8 +40,18 @@ public class BlockStateExtractor {
 				blockStateIdsToBlockStates.put(id, primary.toString());
 			}
 
+			BlockStateInfo info = BlockStateInfo.fromBlockState(blockState);
+
+			// Either put the model directly in the
 			IBakedModel model = blockModelShapes.getModelForState(blockState);
-			BlockStateInfo info = BlockStateInfo.fromBlockState(blockState, model);
+			info = info.withModel(ModelInfo.forBakedModel(model, blockState));
+
+			ModelResourceLocation modelResourceLocation =
+					blockModelShapes.getBlockStateMapper().getVariants(blockState.getBlock()).get(blockState);
+			if (modelResourceLocation == null) {
+				info = info.withModelResourceLocation(modelResourceLocation);
+			}
+
 			blockStates.put(blockState.toString(), info);
 		}
 

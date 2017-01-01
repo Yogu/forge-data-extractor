@@ -15,17 +15,25 @@ import java.util.Map;
  */
 public class ModelInfo {
 	private boolean isAmbientOcclusion;
-	private Map<EnumFacing, List<BakedQuad>> sideQuads = new HashMap<EnumFacing, List<BakedQuad>>();
-	private List<BakedQuad> generalQuads = new ArrayList<BakedQuad>();
+	private Map<EnumFacing, List<QuadInfo>> sideQuads = new HashMap<EnumFacing, List<QuadInfo>>();
+	private List<QuadInfo> generalQuads = new ArrayList<QuadInfo>();
 
 	public static ModelInfo forBakedModel(IBakedModel model, IBlockState blockState) {
 		ModelInfo info = new ModelInfo();
 		info.isAmbientOcclusion = model.isAmbientOcclusion();
 		for (EnumFacing side : EnumFacing.values()) {
 			// We ignore both ExtendedStates and randomization for now
-			info.sideQuads.put(side, model.getQuads(blockState, side, 0));
+			info.sideQuads.put(side, convertQuads(model.getQuads(blockState, side, 0)));
 		}
-		info.generalQuads = model.getQuads(blockState, null, 0);
+		info.generalQuads = convertQuads(model.getQuads(blockState, null, 0));
 		return info;
+	}
+
+	private static List<QuadInfo> convertQuads(Iterable<BakedQuad> quads) {
+		List<QuadInfo> list = new ArrayList<QuadInfo>();
+		for (BakedQuad quad : quads) {
+			list.add(QuadInfo.forBakedQuad(quad));
+		}
+		return list;
 	}
 }

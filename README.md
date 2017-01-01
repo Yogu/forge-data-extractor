@@ -1,3 +1,12 @@
+Forge Data Extractor
+====================
+
+This is a Minecraft mod that extracts static information about block states and their models.
+It is currently only tested with vanilla minecraft, however, it should not be a big problem
+to get it running with other mods.
+
+Below are the instructions on how to set up a development environment for forge
+
 -------------------------------------------
 Source installation information for modders
 -------------------------------------------

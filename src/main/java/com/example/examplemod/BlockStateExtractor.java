@@ -47,7 +47,8 @@ public class BlockStateExtractor {
 			info = info.withModel(ModelInfo.forBakedModel(model, blockState));
 
 			ModelResourceLocation modelResourceLocation =
-					blockModelShapes.getBlockStateMapper().getVariants(blockState.getBlock()).get(blockState);
+					blockModelShapes.getBlockStateMapper().getVariants(blockState.getBlock())
+							.get(blockState);
 			if (modelResourceLocation == null) {
 				info = info.withModelResourceLocation(modelResourceLocation);
 			}
@@ -55,7 +56,11 @@ public class BlockStateExtractor {
 			blockStates.put(blockState.toString(), info);
 		}
 
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		Gson gson = new GsonBuilder()
+				.setPrettyPrinting()
+				.disableHtmlEscaping()
+				.create();
+
 		String json = gson.toJson(blockStates);
 		try {
 			FileUtils.write(new File("blockstates.json"), json);

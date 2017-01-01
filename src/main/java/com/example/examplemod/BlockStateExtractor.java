@@ -28,7 +28,10 @@ public class BlockStateExtractor {
 		Map<Integer, String> blockStateIdsToBlockStates = new HashMap<Integer, String>();
 		Map<String, BlockStateInfo> blockStates = new HashMap<String, BlockStateInfo>();
 
-		BlockModelShapes blockModelShapes = modelManager.getBlockModelShapes();
+		BlockModelShapes modelProvider = modelManager.getBlockModelShapes();
+		// The onModelBake() event is called a bit too early - just before the modelProvider
+		// is refreshed. Need to refresh it or we will get old sprites (missingno)
+		modelProvider.reloadModels();
 		ObjectIntIdentityMap<IBlockState> blockStateIds = Block.BLOCK_STATE_IDS;
 
 		for (IBlockState blockState : blockStateIds) {
@@ -43,11 +46,11 @@ public class BlockStateExtractor {
 			BlockStateInfo info = BlockStateInfo.fromBlockState(blockState);
 
 			// Either put the model directly in the
-			IBakedModel model = blockModelShapes.getModelForState(blockState);
+			IBakedModel model = modelProvider.getModelForState(blockState);
 			info = info.withModel(ModelInfo.forBakedModel(model, blockState));
 
 			ModelResourceLocation modelResourceLocation =
-					blockModelShapes.getBlockStateMapper().getVariants(blockState.getBlock())
+					modelProvider.getBlockStateMapper().getVariants(blockState.getBlock())
 							.get(blockState);
 			if (modelResourceLocation == null) {
 				info = info.withModelResourceLocation(modelResourceLocation);

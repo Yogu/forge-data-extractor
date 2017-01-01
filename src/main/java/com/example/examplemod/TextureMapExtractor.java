@@ -2,6 +2,8 @@ package com.example.examplemod;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -17,12 +19,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static org.lwjgl.opengl.GL11.GL_RGBA;
+import static org.lwjgl.opengl.GL11.*;
 
 /**
  * Extracts a texture map into a file
  */
 public class TextureMapExtractor {
+	private static final Logger LOGGER = LogManager.getLogger();
+
 	public void run(TextureMap map) {
 		// Get pixel data from OpenGL
 		int level = 0; // mip map level
@@ -52,5 +56,7 @@ public class TextureMapExtractor {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+
+		LOGGER.info("created block-texture.png");
 	}
 }

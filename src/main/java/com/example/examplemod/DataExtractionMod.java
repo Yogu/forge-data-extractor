@@ -15,6 +15,8 @@ public class DataExtractionMod
     public static final String VERSION = "0.1";
 
     private static final Logger LOGGER = LogManager.getLogger();
+
+    public static final String OUTPUT_PATH = "extracted-data/";
     
     @EventHandler
     public void init(FMLInitializationEvent event)

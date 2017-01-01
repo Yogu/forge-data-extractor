@@ -48,7 +48,7 @@ public class TextureMapExtractor {
 
 		// Write image to file
 		try {
-			ImageIO.write(image, "png", new File("texture.png"));
+			ImageIO.write(image, "png", new File(DataExtractionMod.OUTPUT_PATH + "block-texture.png"));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

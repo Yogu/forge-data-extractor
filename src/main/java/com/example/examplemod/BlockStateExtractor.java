@@ -60,20 +60,21 @@ public class BlockStateExtractor {
 		}
 
 		Gson gson = new GsonBuilder()
+				.disableHtmlEscaping()
+				.create();
+		Gson prettyGson = new GsonBuilder()
 				.setPrettyPrinting()
 				.disableHtmlEscaping()
 				.create();
 
-		String json = gson.toJson(blockStates);
 		try {
-			FileUtils.write(new File("blockstates.json"), json);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+			String json = gson.toJson(blockStates);
+			FileUtils.write(new File(DataExtractionMod.OUTPUT_PATH + "blockstates.json"), gson.toJson(blockStates));
+			FileUtils.write(new File(DataExtractionMod.OUTPUT_PATH + "blockstates-pretty.json"), prettyGson.toJson(blockStates));
 
-		json = gson.toJson(blockStateIdsToBlockStates);
-		try {
-			FileUtils.write(new File("blockstate-ids.json"), json);
+			json = gson.toJson(blockStateIdsToBlockStates);
+			FileUtils.write(new File(DataExtractionMod.OUTPUT_PATH + "blockstate-ids.json"), gson.toJson(blockStates));
+			FileUtils.write(new File(DataExtractionMod.OUTPUT_PATH + "blockstate-ids-pretty.json"), prettyGson.toJson(blockStates));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

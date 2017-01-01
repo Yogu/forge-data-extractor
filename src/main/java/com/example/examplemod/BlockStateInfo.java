@@ -53,7 +53,7 @@ public class BlockStateInfo implements  Cloneable {
 			try {
 				info.isSideSolid.put(side, blockState.isSideSolid(null, null, side));
 			} catch (NullPointerException e) {
-				LOGGER.info("Failed to retrieve isSideSolid." + side + " for " + blockState);
+				LOGGER.debug("Failed to retrieve isSideSolid." + side + " for " + blockState);
 				// method tried to access world or pos, so it depends on more than just the block state
 				info.isSideSolid.put(side, null);
 			}
@@ -62,7 +62,7 @@ public class BlockStateInfo implements  Cloneable {
 		try {
 			info.collisionBoundingBox = blockState.getCollisionBoundingBox(null, null);
 		} catch (NullPointerException e) {
-			LOGGER.info("Failed to retrieve collisionBoundingBox for " + blockState);
+			LOGGER.debug("Failed to retrieve collisionBoundingBox for " + blockState);
 			// fail safe
 			info.collisionBoundingBox = null;
 		}

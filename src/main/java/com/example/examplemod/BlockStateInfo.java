@@ -1,7 +1,6 @@
 package com.example.examplemod;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
@@ -31,6 +30,9 @@ public class BlockStateInfo implements  Cloneable {
 	private boolean isTranslucent;
 	private Map<EnumFacing, Boolean> isSideSolid = new HashMap<EnumFacing, Boolean>();
 	private AxisAlignedBB collisionBoundingBox;
+	private boolean isSolid;
+	private boolean isLiquid;
+	private boolean blocksMovement;
 
 	private ModelInfo model;
 	private ModelResourceLocation modelResourceLocation;
@@ -48,6 +50,9 @@ public class BlockStateInfo implements  Cloneable {
 		info.isBlockNormalCube = blockState.isBlockNormalCube();
 		info.isOpaqueCube = blockState.isOpaqueCube();
 		info.isTranslucent = blockState.isTranslucent();
+		info.isSolid = blockState.getMaterial().isSolid();
+		info.isLiquid = blockState.getMaterial().isLiquid();
+		info.blocksMovement = blockState.getMaterial().blocksMovement();
 
 		for (EnumFacing side : EnumFacing.values()) {
 			try {
@@ -81,6 +86,12 @@ public class BlockStateInfo implements  Cloneable {
 	public BlockStateInfo withModel(ModelInfo model) {
 		BlockStateInfo clone = this.clone();
 		clone.model = model;
+		return clone;
+	}
+
+	public BlockStateInfo withRenderType(EnumBlockRenderType renderType) {
+		BlockStateInfo clone = this.clone();
+		clone.renderType = renderType;
 		return clone;
 	}
 

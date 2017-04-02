@@ -18,6 +18,7 @@ public class QuadInfo {
 	private float[] textureCoordinates;
 	private float[] normals;
 	private float[] colors;
+	private int tintIndex;
 
 	public static QuadInfo forBakedQuad(BakedQuad quad) {
 		return new Builder(quad).build();
@@ -30,10 +31,12 @@ public class QuadInfo {
 		private float[] textureCoordinates;
 		private float[] normals;
 		private float[] colors;
+		private int tintIndex;
 
 		public Builder(BakedQuad quad) {
 			this.quad = quad;
 			this.vertexData = this.convertVertexDataToByteArray();
+			this.tintIndex = quad.getTintIndex();
 		}
 
 		public QuadInfo build() {
@@ -43,6 +46,7 @@ public class QuadInfo {
 			info.normals = getNormals();
 			info.textureCoordinates = getTextureCoordinates();
 			info.colors = getColors();
+			info.tintIndex = tintIndex;
 			return info;
 		}
 
@@ -63,6 +67,28 @@ public class QuadInfo {
 
 		private float[] getTextureCoordinates() {
 			return extractElementForAllVertices(VertexFormatElement.EnumUsage.UV, 2);
+		}
+
+		/**
+		 * Takes an array of sprite-local UV coordinates and converts it to texture-global coords
+		 * @param coordsWithinSprite the sprite-local UV coordinates
+		 * @return the global UV coordinates
+		 */
+		private float[] applySpriteTextureCoordinates(float[] coordsWithinSprite) {
+			float minU = quad.getSprite().getMinU();
+			float maxU = quad.getSprite().getMinU();
+			float minV = quad.getSprite().getMinV();
+			float maxV = quad.getSprite().getMinV();
+			float[] result = new float[coordsWithinSprite.length];
+			for (int i = 0; i < coordsWithinSprite.length / 2; i++) {
+				float localU = coordsWithinSprite[i * 2];
+				float localV = coordsWithinSprite[i * 2 + 1];
+				float globalU = minU + localU * (maxU - minU);
+				float globalV = minV + localV * (maxV - minV);
+				result[i * 2] = globalU;
+				result[i * 2 + 1] = globalV;
+			}
+			return result;
 		}
 
 		private float[] getColors() {

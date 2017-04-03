@@ -1,6 +1,5 @@
 package com.example.examplemod;
 
-import com.example.examplemod.blocks.FluidBlocks;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraft.block.Block;
@@ -12,7 +11,6 @@ import net.minecraft.client.renderer.block.model.ModelManager;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ObjectIntIdentityMap;
 import net.minecraft.util.math.BlockPos;
@@ -55,35 +53,13 @@ public class BlockStateExtractor {
 				blockStateIdsToBlockStates.put(id, primary.toString());
 			}
 
-			BlockStateInfo info = BlockStateInfo.fromBlockState(blockState);
+			// put in all blockstates that have a numeric representation, even if they do not specify all properties
+			blockStates.put(blockState.toString(), getBlockStateInfo(modelProvider, blockState));
 
-			IBlockState blockStateForModel;
-			String blockName = blockState.getBlock().getRegistryName().toString();
-			if (blockName.equals("minecraft:water") || blockName.equals("minecraft:flowing_water")) {
-				blockStateForModel = getLiquidBlockStateForModel(blockState, FluidBlocks.WATER);
-				info = info.withRenderType(EnumBlockRenderType.MODEL);
-			} else if (blockName.equals("minecraft:lava") || blockName.equals("minecraft:flowing_lava")) {
-				blockStateForModel = getLiquidBlockStateForModel(blockState, FluidBlocks.LAVA);
-				info = info.withRenderType(EnumBlockRenderType.MODEL);
-			} else {
-				blockStateForModel = blockState;
+			// make sure we get all blockstates with all properties even without numeric representation
+			for (IBlockState derived : blockState.getBlock().getBlockState().getValidStates()) {
+				blockStates.put(derived.toString(), getBlockStateInfo(modelProvider, derived));
 			}
-
-			IBakedModel model = modelProvider.getModelForState(blockStateForModel);
-			IBlockState extendedBlockState = blockState.getBlock()
-					.getExtendedState(blockStateForModel,
-							new FakeBlockAccess(blockState, new BlockPos(0, 0, 0)),
-							new BlockPos(0, 0, 0));
-			info = info.withModel(ModelInfo.forBakedModel(model, extendedBlockState));
-
-			ModelResourceLocation modelResourceLocation =
-					modelProvider.getBlockStateMapper().getVariants(blockState.getBlock())
-							.get(blockState);
-			if (modelResourceLocation == null) {
-				info = info.withModelResourceLocation(modelResourceLocation);
-			}
-
-			blockStates.put(blockState.toString(), info);
 		}
 
 		Gson gson = new GsonBuilder()
@@ -111,6 +87,39 @@ public class BlockStateExtractor {
 		}
 
 		LOGGER.info("Saved blockstates.json and blockstate-ids.json");
+	}
+
+	private BlockStateInfo getBlockStateInfo(BlockModelShapes modelProvider, IBlockState blockState) {
+		BlockStateInfo info = BlockStateInfo.fromBlockState(blockState);
+
+		IBlockState blockStateForModel;
+		String blockName = blockState.getBlock().getRegistryName().toString();
+			/*if (blockName.equals("minecraft:water") || blockName.equals("minecraft:flowing_water")) {
+				blockStateForModel = getLiquidBlockStateForModel(blockState, FluidBlocks.WATER);
+				//info = info.withRenderType(EnumBlockRenderType.MODEL);
+			} else if (blockName.equals("minecraft:lava") || blockName.equals("minecraft:flowing_lava")) {
+				blockStateForModel = getLiquidBlockStateForModel(blockState, FluidBlocks.LAVA);
+				//info = info.withRenderType(EnumBlockRenderType.MODEL);
+			} else*/
+		{
+			blockStateForModel = blockState;
+		}
+
+		IBakedModel model = modelProvider.getModelForState(blockStateForModel);
+		IBlockState extendedBlockState = blockState.getBlock()
+				.getExtendedState(blockStateForModel,
+						new FakeBlockAccess(blockState, new BlockPos(0, 0, 0)),
+						new BlockPos(0, 0, 0));
+		info = info.withModel(ModelInfo.forBakedModel(model, extendedBlockState));
+
+		ModelResourceLocation modelResourceLocation =
+				modelProvider.getBlockStateMapper().getVariants(blockState.getBlock())
+						.get(blockState);
+		if (modelResourceLocation == null) {
+			info = info.withModelResourceLocation(modelResourceLocation);
+		}
+
+		return info;
 	}
 
 	private IBlockState getLiquidBlockStateForModel(IBlockState blockState, Block fluidBlock) {

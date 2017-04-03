@@ -33,6 +33,7 @@ public class BlockStateInfo implements  Cloneable {
 	private boolean isSolid;
 	private boolean isLiquid;
 	private boolean blocksMovement;
+	private boolean useNeighborBrightness;
 
 	private ModelInfo model;
 	private ModelResourceLocation modelResourceLocation;
@@ -53,6 +54,7 @@ public class BlockStateInfo implements  Cloneable {
 		info.isSolid = blockState.getMaterial().isSolid();
 		info.isLiquid = blockState.getMaterial().isLiquid();
 		info.blocksMovement = blockState.getMaterial().blocksMovement();
+		info.useNeighborBrightness = blockState.useNeighborBrightness();
 
 		for (EnumFacing side : EnumFacing.values()) {
 			try {

@@ -2,6 +2,7 @@ package com.example.examplemod;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -20,6 +21,7 @@ public class BlockStateInfo implements  Cloneable {
 	private String qualifiedName;
 	private float ambientOcclusionLightValue;
 	private EnumBlockRenderType renderType;
+	private BlockRenderLayer renderLayer;
 	private int lightOpacity;
 	private int lightValue;
 	private boolean isFullCube;
@@ -42,6 +44,7 @@ public class BlockStateInfo implements  Cloneable {
 		BlockStateInfo info = new BlockStateInfo();
 		info.qualifiedName = blockState.toString();
 		info.renderType = blockState.getRenderType();
+		info.renderLayer = blockState.getBlock().getBlockLayer();
 		info.ambientOcclusionLightValue = blockState.getAmbientOcclusionLightValue();
 		info.lightOpacity = blockState.getLightOpacity();
 		info.lightValue = blockState.getLightValue();

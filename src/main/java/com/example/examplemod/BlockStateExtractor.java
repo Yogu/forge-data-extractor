@@ -3,7 +3,10 @@ package com.example.examplemod;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFire;
+import net.minecraft.block.BlockFlowerPot;
 import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.BlockRedstoneWire;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -57,8 +60,11 @@ public class BlockStateExtractor {
 			blockStates.put(blockState.toString(), getBlockStateInfo(modelProvider, blockState));
 
 			// make sure we get all blockstates with all properties even without numeric representation
-			for (IBlockState derived : blockState.getBlock().getBlockState().getValidStates()) {
-				blockStates.put(derived.toString(), getBlockStateInfo(modelProvider, derived));
+			// but these three generate huge amounts of blockstates, so leave them out until we really need them
+			if (!(blockState.getBlock() instanceof BlockRedstoneWire) && !(blockState.getBlock() instanceof BlockFire) && !(blockState.getBlock() instanceof BlockFlowerPot)) {
+				for (IBlockState derived : blockState.getBlock().getBlockState().getValidStates()) {
+					blockStates.put(derived.toString(), getBlockStateInfo(modelProvider, derived));
+				}
 			}
 		}
 

@@ -1,6 +1,7 @@
 package com.example.examplemod;
 
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 
@@ -58,15 +59,15 @@ public class QuadInfo {
 		}
 
 		private float[] getPositions() {
-			return extractElementForAllVertices(VertexFormatElement.EnumUsage.POSITION, 3);
+			return extractElementForAllVertices(VertexFormatElement.Usage.POSITION, 3);
 		}
 
 		private float[] getNormals() {
-			return extractElementForAllVertices(VertexFormatElement.EnumUsage.NORMAL, 3);
+			return extractElementForAllVertices(VertexFormatElement.Usage.NORMAL, 3);
 		}
 
 		private float[] getTextureCoordinates() {
-			return extractElementForAllVertices(VertexFormatElement.EnumUsage.UV, 2);
+			return extractElementForAllVertices(VertexFormatElement.Usage.UV, 2);
 		}
 
 		/**
@@ -92,21 +93,21 @@ public class QuadInfo {
 		}
 
 		private float[] getColors() {
-			return extractElementForAllVertices(VertexFormatElement.EnumUsage.COLOR, 4);
+			return extractElementForAllVertices(VertexFormatElement.Usage.COLOR, 4);
 		}
 
-		private float[] extractElementForAllVertices(VertexFormatElement.EnumUsage usage,
+		private float[] extractElementForAllVertices(VertexFormatElement.Usage usage,
 				int expectedElementCount, int elementIndex) {
-			int index = this.findElement(quad.getFormat(), usage, elementIndex);
+			int index = this.findElement(DefaultVertexFormats.BLOCK, usage, elementIndex);
 			if (index < 0) {
 				return null;
 			}
-			VertexFormatElement element = quad.getFormat().getElement(index);
+			VertexFormatElement element = DefaultVertexFormats.BLOCK.func_227894_c_().get(index); // func_227894_c_ is getElements()
 			assertElementCount(element, expectedElementCount);
 			return extractElementForAllVertices(index);
 		}
 
-		private float[] extractElementForAllVertices(VertexFormatElement.EnumUsage usage,
+		private float[] extractElementForAllVertices(VertexFormatElement.Usage usage,
 				int expectedElementCount) {
 			return extractElementForAllVertices(usage, expectedElementCount, 0);
 		}
@@ -125,13 +126,13 @@ public class QuadInfo {
 		 * @return the numbers of this element in all vertices
 		 */
 		private float[] extractElementForAllVertices(int elementIndex) {
-			VertexFormatElement element = quad.getFormat().getElement(elementIndex);
-			int elementOffset = quad.getFormat().getOffset(elementIndex);
+			VertexFormatElement element = DefaultVertexFormats.BLOCK.func_227894_c_().get(elementIndex);
+			int elementOffset = DefaultVertexFormats.BLOCK.getOffset(elementIndex);
 			int elementSize = element.getSize();
 			int elementCount = element.getElementCount();
 			float[] result = new float[element.getElementCount() * VERTEX_COUNT];
 			for (int i = 0; i < VERTEX_COUNT; i++) {
-				int vertexElementOffset = elementOffset + i * quad.getFormat().getIntegerSize() * 4;
+				int vertexElementOffset = elementOffset + i * DefaultVertexFormats.BLOCK.getIntegerSize() * 4;
 				byte[] elementData =
 						Arrays.copyOfRange(vertexData, vertexElementOffset,
 								vertexElementOffset + elementSize);
@@ -221,9 +222,9 @@ public class QuadInfo {
 		}
 
 		private int findElement(VertexFormat format,
-				VertexFormatElement.EnumUsage usage, int elementIndex) {
+				VertexFormatElement.Usage usage, int elementIndex) {
 			int i = 0;
-			for (VertexFormatElement element : format.getElements()) {
+			for (VertexFormatElement element : DefaultVertexFormats.BLOCK.func_227894_c_()) {
 				if (element.getUsage() == usage && element.getIndex() == elementIndex) {
 					return i;
 				}

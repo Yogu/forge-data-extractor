@@ -1,7 +1,7 @@
 package com.example.examplemod;
 
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.texture.TextureMap;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
@@ -27,17 +27,18 @@ import static org.lwjgl.opengl.GL11.*;
 public class TextureMapExtractor {
 	private static final Logger LOGGER = LogManager.getLogger();
 
-	public void run(TextureMap map) {
+	public void run(AtlasTexture map) {
 		// Get pixel data from OpenGL
 		int level = 0; // mip map level
-		GlStateManager.bindTexture(map.getGlTextureId());
+		// is this bindTexture?
+		GlStateManager.func_227760_t_(map.getGlTextureId());
 		int width = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, level, GL11.GL_TEXTURE_WIDTH);
 		int height =
 				GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, level, GL11.GL_TEXTURE_HEIGHT);
 		int size = width * height * 4;
 		ByteBuffer imageBuffer = BufferUtils.createByteBuffer(size);
 		GL11.glGetTexImage(GL11.GL_TEXTURE_2D, level, GL_RGBA, GL11.GL_UNSIGNED_BYTE, imageBuffer);
-		GlStateManager.bindTexture(0);
+		GlStateManager.func_227760_t_(0);
 
 		// Convert pixel data to image
 		byte[] imageData = new byte[size];
@@ -50,13 +51,16 @@ public class TextureMapExtractor {
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
 		image.setData(raster);
 
+		String name = map.func_229223_g_().getPath();
+		String fileName = "texture-atlas-" + name.substring(name.lastIndexOf('/') + 1);
+
 		// Write image to file
 		try {
-			ImageIO.write(image, "png", new File(DataExtractionMod.OUTPUT_PATH + "block-texture.png"));
+			ImageIO.write(image, "png", new File(DataExtractionMod.OUTPUT_PATH + fileName));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
-		LOGGER.info("created block-texture.png");
+		LOGGER.info("created " + fileName + ".png");
 	}
 }

@@ -2,25 +2,17 @@ package com.example.examplemod;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockFire;
-import net.minecraft.block.BlockFlowerPot;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.BlockRedstoneWire;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.*;
 import net.minecraft.client.renderer.BlockModelShapes;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelManager;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.init.Blocks;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ModelManager;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.fluid.IFluidState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ObjectIntIdentityMap;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.WorldType;
-import net.minecraft.world.biome.Biome;
-import net.minecraftforge.fluids.BlockFluidBase;
+import net.minecraft.world.IBlockReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,11 +37,11 @@ public class BlockStateExtractor {
 		// The onModelBake() event is called a bit too early - just before the modelProvider
 		// is refreshed. Need to refresh it or we will get old sprites (missingno)
 		modelProvider.reloadModels();
-		ObjectIntIdentityMap<IBlockState> blockStateIds = Block.BLOCK_STATE_IDS;
+		ObjectIntIdentityMap<BlockState> blockStateIds = Block.BLOCK_STATE_IDS;
 
-		for (IBlockState blockState : blockStateIds) {
+		for (BlockState blockState : blockStateIds) {
 			int id = blockStateIds.get(blockState);
-			IBlockState primary = blockStateIds.getByValue(id);
+			BlockState primary = blockStateIds.getByValue(id);
 			if (primary == null) {
 				LOGGER.warn("No primary blockstate found for blockstate " + blockState);
 			} else {
@@ -61,10 +53,8 @@ public class BlockStateExtractor {
 
 			// make sure we get all blockstates with all properties even without numeric representation
 			// but these three generate huge amounts of blockstates, so leave them out until we really need them
-			if (!(blockState.getBlock() instanceof BlockRedstoneWire) && !(blockState.getBlock() instanceof BlockFire) && !(blockState.getBlock() instanceof BlockFlowerPot)) {
-				for (IBlockState derived : blockState.getBlock().getBlockState().getValidStates()) {
-					blockStates.put(derived.toString(), getBlockStateInfo(modelProvider, derived));
-				}
+			if (!(blockState.getBlock() instanceof RedstoneWireBlock) && !(blockState.getBlock() instanceof FireBlock) && !(blockState.getBlock() instanceof FlowerPotBlock)) {
+				blockStates.put(blockState.toString(), getBlockStateInfo(modelProvider, blockState));
 			}
 		}
 
@@ -95,10 +85,10 @@ public class BlockStateExtractor {
 		LOGGER.info("Saved blockstates.json and blockstate-ids.json");
 	}
 
-	private BlockStateInfo getBlockStateInfo(BlockModelShapes modelProvider, IBlockState blockState) {
+	private BlockStateInfo getBlockStateInfo(BlockModelShapes modelProvider, BlockState blockState) {
 		BlockStateInfo info = BlockStateInfo.fromBlockState(blockState);
 
-		IBlockState blockStateForModel;
+		BlockState blockStateForModel;
 		String blockName = blockState.getBlock().getRegistryName().toString();
 			/*if (blockName.equals("minecraft:water") || blockName.equals("minecraft:flowing_water")) {
 				blockStateForModel = getLiquidBlockStateForModel(blockState, FluidBlocks.WATER);
@@ -111,28 +101,26 @@ public class BlockStateExtractor {
 			blockStateForModel = blockState;
 		}
 
-		IBakedModel model = modelProvider.getModelForState(blockStateForModel);
-		IBlockState extendedBlockState = blockState.getBlock()
+		IBakedModel model = modelProvider.getModel(blockStateForModel);
+		BlockState extendedBlockState = blockState.getBlock()
 				.getExtendedState(blockStateForModel,
 						new FakeBlockAccess(blockState, new BlockPos(0, 0, 0)),
 						new BlockPos(0, 0, 0));
 		info = info.withModel(ModelInfo.forBakedModel(model, extendedBlockState));
 
-		ModelResourceLocation modelResourceLocation =
-				modelProvider.getBlockStateMapper().getVariants(blockState.getBlock())
-						.get(blockState);
-		if (modelResourceLocation == null) {
+		ModelResourceLocation modelResourceLocation = BlockModelShapes.getModelLocation(blockState);
+		if (modelResourceLocation != null) {
 			info = info.withModelResourceLocation(modelResourceLocation);
 		}
 
 		return info;
 	}
 
-	private IBlockState getLiquidBlockStateForModel(IBlockState blockState, Block fluidBlock) {
-		IBlockState blockStateForModel = fluidBlock.getDefaultState();
+	/*private BlockState getLiquidBlockStateForModel(BlockState blockState, Block fluidBlock) {
+		BlockState blockStateForModel = fluidBlock.getDefaultState();
 		int liquidLevel = blockState.getValue(BlockLiquid.LEVEL);
 		int fluidLevel;
-		IBlockAccess world = new FakeBlockAccess(blockState, new BlockPos(0, 0, 0));
+		IBlockReader world = new FakeBlockAccess(blockState, new BlockPos(0, 0, 0));
 		if (liquidLevel == 0) {
 			fluidLevel = 15;
 		} else if (liquidLevel > 8) {
@@ -143,13 +131,13 @@ public class BlockStateExtractor {
 		}
 		blockStateForModel.withProperty(BlockFluidBase.LEVEL, fluidLevel);
 		return fluidBlock.getExtendedState(blockStateForModel, world, new BlockPos(0, 0, 0));
-	}
+	}*/
 
-	private class FakeBlockAccess implements IBlockAccess {
-		protected IBlockState blockState;
+	private class FakeBlockAccess implements IBlockReader {
+		protected BlockState blockState;
 		protected BlockPos blockPos;
 
-		public FakeBlockAccess(IBlockState blockState, BlockPos blockPos) {
+		public FakeBlockAccess(BlockState blockState, BlockPos blockPos) {
 			this.blockState = blockState;
 			this.blockPos = blockPos;
 		}
@@ -158,45 +146,27 @@ public class BlockStateExtractor {
 			return null;
 		}
 
-		@Override public int getCombinedLight(BlockPos pos, int lightValue) {
-			return 0;
-		}
 
-		@Override public IBlockState getBlockState(BlockPos pos) {
+		@Override public BlockState getBlockState(BlockPos pos) {
 			if (pos.equals(this.blockPos)) {
 				return this.blockState;
 			}
 			return Blocks.AIR.getDefaultState();
 		}
 
-		@Override public boolean isAirBlock(BlockPos pos) {
-			return !pos.equals(this.blockPos);
+		@Override public IFluidState getFluidState(BlockPos pos) {
+			return Fluids.EMPTY.getDefaultState();
 		}
 
-		@Override public Biome getBiome(BlockPos pos) {
-			return Biome.getBiome(1);
-		}
-
-		@Override public int getStrongPower(BlockPos pos, EnumFacing direction) {
-			return 0;
-		}
-
-		@Override public WorldType getWorldType() {
-			return WorldType.DEFAULT;
-		}
-
-		@Override public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default) {
-			return false;
-		}
 	}
 
 	private class FakeBlockAccessWithWaterOnTop extends FakeBlockAccess {
-		public FakeBlockAccessWithWaterOnTop(IBlockState blockState,
+		public FakeBlockAccessWithWaterOnTop(BlockState blockState,
 				BlockPos blockPos) {
 			super(blockState, blockPos);
 		}
 
-		@Override public IBlockState getBlockState(BlockPos pos) {
+		@Override public BlockState getBlockState(BlockPos pos) {
 			if (pos.equals(this.blockPos.up())) {
 				return Blocks.WATER.getDefaultState();
 			}

@@ -1,31 +1,28 @@
 package com.example.examplemod;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.util.Direction;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Static information of a {@link IBakedModel}
  */
 public class ModelInfo {
 	private boolean isAmbientOcclusion;
-	private Map<EnumFacing, List<QuadInfo>> sideQuads = new HashMap<EnumFacing, List<QuadInfo>>();
+	private Map<Direction, List<QuadInfo>> sideQuads = new HashMap<Direction, List<QuadInfo>>();
 	private List<QuadInfo> generalQuads = new ArrayList<QuadInfo>();
 
-	public static ModelInfo forBakedModel(IBakedModel model, IBlockState blockState) {
+	public static ModelInfo forBakedModel(IBakedModel model, BlockState blockState) {
 		ModelInfo info = new ModelInfo();
 		info.isAmbientOcclusion = model.isAmbientOcclusion();
-		for (EnumFacing side : EnumFacing.values()) {
+		for (Direction side : Direction.values()) {
 			// We ignore both ExtendedStates and randomization for now
-			info.sideQuads.put(side, convertQuads(model.getQuads(blockState, side, 0)));
+			info.sideQuads.put(side, convertQuads(model.getQuads(blockState, side, new Random())));
 		}
-		info.generalQuads = convertQuads(model.getQuads(blockState, null, 0));
+		info.generalQuads = convertQuads(model.getQuads(blockState, null, new Random()));
 		return info;
 	}
 

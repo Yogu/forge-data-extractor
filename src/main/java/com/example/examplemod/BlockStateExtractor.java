@@ -45,17 +45,20 @@ public class BlockStateExtractor {
 			if (primary == null) {
 				LOGGER.warn("No primary blockstate found for blockstate " + blockState);
 			} else {
-				blockStateIdsToBlockStates.put(id, primary.toString());
+				BlockStateInfo primaryInfo = getBlockStateInfo(modelProvider, primary);
+				blockStateIdsToBlockStates.put(id, primaryInfo.getQualifiedName());
 			}
 
 			// put in all blockstates that have a numeric representation, even if they do not specify all properties
-			blockStates.put(blockState.toString(), getBlockStateInfo(modelProvider, blockState));
+			BlockStateInfo blockStateInfo = getBlockStateInfo(modelProvider, blockState);
+			blockStates.put(blockStateInfo.getQualifiedName(), getBlockStateInfo(modelProvider, blockState));
 
 			// make sure we get all blockstates with all properties even without numeric representation
 			// but these three generate huge amounts of blockstates, so leave them out until we really need them
-			if (!(blockState.getBlock() instanceof RedstoneWireBlock) && !(blockState.getBlock() instanceof FireBlock) && !(blockState.getBlock() instanceof FlowerPotBlock)) {
-				blockStates.put(blockState.toString(), getBlockStateInfo(modelProvider, blockState));
-			}
+			/*if (!(blockState.getBlock() instanceof RedstoneWireBlock) && !(blockState.getBlock() instanceof FireBlock) && !(blockState.getBlock() instanceof FlowerPotBlock)) {
+				BlockStateInfo blockStateInfo = getBlockStateInfo(modelProvider, blockState);
+				blockStates.put(blockStateInfo.getQualifiedName(), getBlockStateInfo(modelProvider, blockState));
+			}*/
 		}
 
 		Gson gson = new GsonBuilder()

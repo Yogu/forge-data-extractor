@@ -50,7 +50,7 @@ public class BlockStateInfo implements  Cloneable {
 
 	public static BlockStateInfo fromBlockState(BlockState blockState) {
 		BlockStateInfo info = new BlockStateInfo();
-		info.qualifiedName = blockState.toString();
+		info.qualifiedName = getQualifiedName(blockState);
 		info.renderType = blockState.getRenderType();
 		//info.renderLayer = blockState.getBlock().getBlockLayer();
 		//info.ambientOcclusionLightValue = blockState.getAmbientOcclusionLightValue();
@@ -89,6 +89,15 @@ public class BlockStateInfo implements  Cloneable {
 		}
 
 		return info;
+	}
+
+	public String getQualifiedName() {
+		return this.qualifiedName;
+	}
+
+	private static String getQualifiedName(BlockState blockState) {
+		String str = blockState.toString();
+		return str.replaceAll("Block\\{(.*)\\}(.*)", "$1$2");
 	}
 
 	public BlockStateInfo clone() {

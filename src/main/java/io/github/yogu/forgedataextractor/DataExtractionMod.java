@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package io.github.yogu.forgedataextractor;
 
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -7,7 +7,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod("examplemod")
+@Mod("forgedataextractor")
 public class DataExtractionMod
 {
     private static final Logger LOGGER = LogManager.getLogger();

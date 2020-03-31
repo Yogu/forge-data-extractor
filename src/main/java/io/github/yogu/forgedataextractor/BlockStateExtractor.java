@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package io.github.yogu.forgedataextractor;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

@@ -1,7 +1,7 @@
 [
 {
-  "modid": "data-extraction",
-  "name": "Data Extraction Mod",
+  "modid": "forgedataextractor",
+  "name": "Forge Data Extractor",
   "description": "Extracts static data of blockstates and models",
   "version": "${version}",
   "mcversion": "${mcversion}",

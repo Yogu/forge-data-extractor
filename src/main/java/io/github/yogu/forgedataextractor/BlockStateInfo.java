@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package io.github.yogu.forgedataextractor;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;

@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package io.github.yogu.forgedataextractor;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.texture.AtlasTexture;

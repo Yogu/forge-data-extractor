@@ -44,6 +44,7 @@ public class BlockStateInfo implements  Cloneable {
 	private boolean isLiquid;
 	private boolean blocksMovement;
 	private boolean useNeighborBrightness;
+	private FluidStateInfo fluidState;
 
 	private ModelInfo model;
 	private ModelResourceLocation modelResourceLocation;
@@ -88,6 +89,11 @@ public class BlockStateInfo implements  Cloneable {
 			info.collisionBoundingBox = null;
 		}
 
+		IFluidState fluidState = blockState.getFluidState();
+		if (!fluidState.isEmpty()) {
+			info.fluidState = FluidStateInfo.fromFluidState(fluidState);
+		}
+
 		return info;
 	}
 
@@ -95,7 +101,7 @@ public class BlockStateInfo implements  Cloneable {
 		return this.qualifiedName;
 	}
 
-	private static String getQualifiedName(BlockState blockState) {
+	public static String getQualifiedName(BlockState blockState) {
 		String str = blockState.toString();
 		return str.replaceAll("Block\\{(.*)\\}(.*)", "$1$2");
 	}
